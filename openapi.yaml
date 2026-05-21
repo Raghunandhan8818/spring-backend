@@ -1,0 +1,778 @@
+openapi: 3.0.3
+info:
+  title: Hobbie Backend API
+  description: |
+    REST API for the Hobbie platform — a full-stack app that matches clients with hobby
+    offerings from business owners.
+
+    ## Authentication
+    Most endpoints require a JWT Bearer token. Obtain one by calling `POST /authenticate`
+    with valid credentials. Include the token in all subsequent requests as:
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    ## Public Endpoints (no token required)
+    - `POST /signup`
+    - `POST /register`
+    - `POST /authenticate`
+    - `POST /notification`
+    - `PUT /password`
+  version: 1.0.0
+  contact:
+    name: Hobbie Backend
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: Login and token operations
+  - name: Users
+    description: Client and business user management
+  - name: Hobbies
+    description: Hobby creation, discovery, and favorites
+  - name: Home
+    description: Personalised homepage feed
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  # ── Authentication ────────────────────────────────────────────────────────
+
+  /authenticate:
+    post:
+      tags: [Authentication]
+      summary: Authenticate user and get JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JwtRequest'
+            example:
+              username: johndoe
+              password: secret123
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+        '400':
+          description: Invalid credentials
+
+  /login:
+    post:
+      tags: [Authentication]
+      summary: Resolve user role after authentication
+      description: Returns the role string (`USER` or `BUSINESS_USER`) for the authenticated username.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role string
+          content:
+            application/json:
+              schema:
+                type: string
+                enum: [USER, BUSINESS_USER]
+
+  # ── Users ─────────────────────────────────────────────────────────────────
+
+  /signup:
+    post:
+      tags: [Users]
+      summary: Register a new client user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppClientSignUpDto'
+            example:
+              username: janedoe
+              fullName: Jane Doe
+              gender: FEMALE
+              email: jane@example.com
+              password: secret123
+      responses:
+        '201':
+          description: Client created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppClient'
+        '400':
+          description: Username or email already in use
+
+  /register:
+    post:
+      tags: [Users]
+      summary: Register a new business user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessRegisterDto'
+            example:
+              username: yogastudio
+              businessName: Yoga Studio Zurich
+              address: Bahnhofstrasse 1, Zurich
+              email: yoga@example.com
+              password: secret123
+      responses:
+        '201':
+          description: Business owner created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessOwner'
+        '400':
+          description: Username, email, or business name already in use
+
+  /client:
+    get:
+      tags: [Users]
+      summary: Get client user profile
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Client profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppClient'
+
+  /business:
+    get:
+      tags: [Users]
+      summary: Get business user profile
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Business profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessOwner'
+
+  /user:
+    put:
+      tags: [Users]
+      summary: Update client user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppClientDto'
+      responses:
+        '201':
+          description: Updated client profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppClient'
+
+  /user/{id}:
+    delete:
+      tags: [Users]
+      summary: Delete a user account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: ID of the deleted user
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: User not found
+
+  /business:
+    put:
+      tags: [Users]
+      summary: Update business user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBusinessDto'
+      responses:
+        '201':
+          description: Updated business profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessOwner'
+
+  /notification:
+    post:
+      tags: [Users]
+      summary: Send password-reset notification email
+      security: []
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Notification sent; returns the matched user entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+        '404':
+          description: User not found
+
+  /password:
+    put:
+      tags: [Users]
+      summary: Set a new password for a user
+      security: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Password updated; returns the updated user entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEntity'
+
+  # ── Home ──────────────────────────────────────────────────────────────────
+
+  /home:
+    get:
+      tags: [Home]
+      summary: Get personalised hobby feed for client or business user
+      description: |
+        When `role=user`, returns hobbies matched to the client's test results.
+        For any other role value, returns all hobbies created by the business owner.
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: role
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [user, business]
+      responses:
+        '200':
+          description: Set of matching hobbies
+          content:
+            application/json:
+              schema:
+                type: array
+                uniqueItems: true
+                items:
+                  $ref: '#/components/schemas/Hobby'
+
+  # ── Hobbies ───────────────────────────────────────────────────────────────
+
+  /hobbies:
+    post:
+      tags: [Hobbies]
+      summary: Create a new hobby offering
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HobbyInfoDto'
+      responses:
+        '201':
+          description: Hobby created (no response body)
+
+    put:
+      tags: [Hobbies]
+      summary: Update an existing hobby offering
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HobbyInfoUpdateDto'
+      responses:
+        '201':
+          description: Updated hobby
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hobby'
+
+  /hobbies/{id}:
+    get:
+      tags: [Hobbies]
+      summary: Get hobby details by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Hobby details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hobby'
+
+    delete:
+      tags: [Hobbies]
+      summary: Delete a hobby by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: ID of the deleted hobby
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: Hobby not found
+
+  /hobbies/is-saved:
+    get:
+      tags: [Hobbies]
+      summary: Check whether a hobby is in the client's favourites
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: True if hobby is saved
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /hobbies/save:
+    post:
+      tags: [Hobbies]
+      summary: Add a hobby to the client's favourites
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ID of the saved hobby
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: Hobby or user not found
+
+  /hobbies/remove:
+    delete:
+      tags: [Hobbies]
+      summary: Remove a hobby from the client's favourites
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ID of the removed hobby
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        '404':
+          description: Hobby or user not found
+
+  /hobbies/saved:
+    get:
+      tags: [Hobbies]
+      summary: List all hobbies saved in a client's favourites
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of saved hobbies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Hobby'
+
+# ── Components ──────────────────────────────────────────────────────────────
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    # ── Enums ────────────────────────────────────────────────────────────────
+
+    GenderEnum:
+      type: string
+      enum: [MALE, FEMALE, OTHER]
+
+    UserRoleEnum:
+      type: string
+      enum: [ADMIN, USER, BUSINESS_USER]
+
+    CategoryNameEnum:
+      type: string
+      enum: [ACTIVE, FUN, CREATIVE, RELAX, INTELLECTUAL, SOCIAL, OTHER]
+
+    LocationEnum:
+      type: string
+      enum: [ZURICH, BERN, LUZERN, ZUG]
+
+    # ── Auth ─────────────────────────────────────────────────────────────────
+
+    JwtRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    JwtResponse:
+      type: object
+      properties:
+        jwtToken:
+          type: string
+          description: Bearer token to include in subsequent requests
+
+    # ── DTOs ─────────────────────────────────────────────────────────────────
+
+    AppClientSignUpDto:
+      type: object
+      required: [username, fullName, gender, email, password]
+      properties:
+        username:
+          type: string
+        fullName:
+          type: string
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    BusinessRegisterDto:
+      type: object
+      required: [username, businessName, address, email, password]
+      properties:
+        username:
+          type: string
+        businessName:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    UpdateAppClientDto:
+      type: object
+      required: [id, fullName, gender, password]
+      properties:
+        id:
+          type: integer
+          format: int64
+        fullName:
+          type: string
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        password:
+          type: string
+
+    UpdateBusinessDto:
+      type: object
+      required: [id, businessName, address, password]
+      properties:
+        id:
+          type: integer
+          format: int64
+        businessName:
+          type: string
+        address:
+          type: string
+        password:
+          type: string
+
+    HobbyInfoDto:
+      type: object
+      required: [name, price, category, location, creator]
+      properties:
+        name:
+          type: string
+        slogan:
+          type: string
+        intro:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/CategoryNameEnum'
+        creator:
+          type: string
+          description: Username of the business owner creating the hobby
+        price:
+          type: number
+          format: double
+        location:
+          $ref: '#/components/schemas/LocationEnum'
+        contactInfo:
+          type: string
+        profileImgUrl:
+          type: string
+          format: uri
+        galleryImgUrl1:
+          type: string
+          format: uri
+        galleryImgUrl2:
+          type: string
+          format: uri
+        galleryImgUrl3:
+          type: string
+          format: uri
+        profileImg_id:
+          type: string
+        galleryImg1_id:
+          type: string
+        galleryImg2_id:
+          type: string
+        galleryImg3_id:
+          type: string
+
+    HobbyInfoUpdateDto:
+      allOf:
+        - $ref: '#/components/schemas/HobbyInfoDto'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: integer
+              format: int64
+
+    # ── Entities ─────────────────────────────────────────────────────────────
+
+    UserRoleEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        role:
+          $ref: '#/components/schemas/UserRoleEnum'
+
+    UserEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserRoleEntity'
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          $ref: '#/components/schemas/CategoryNameEnum'
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          $ref: '#/components/schemas/LocationEnum'
+
+    Hobby:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        slogan:
+          type: string
+        intro:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+        creator:
+          type: string
+        price:
+          type: number
+          format: double
+        location:
+          $ref: '#/components/schemas/Location'
+        contactInfo:
+          type: string
+        profileImgUrl:
+          type: string
+          format: uri
+        galleryImgUrl1:
+          type: string
+          format: uri
+        galleryImgUrl2:
+          type: string
+          format: uri
+        galleryImgUrl3:
+          type: string
+          format: uri
+        profileImg_id:
+          type: string
+        galleryImg1_id:
+          type: string
+        galleryImg2_id:
+          type: string
+        galleryImg3_id:
+          type: string
+
+    AppClient:
+      allOf:
+        - $ref: '#/components/schemas/UserEntity'
+        - type: object
+          properties:
+            fullName:
+              type: string
+            gender:
+              $ref: '#/components/schemas/GenderEnum'
+            hobby_matches:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/Hobby'
+            saved_hobbies:
+              type: array
+              items:
+                $ref: '#/components/schemas/Hobby'
+
+    BusinessOwner:
+      allOf:
+        - $ref: '#/components/schemas/UserEntity'
+        - type: object
+          properties:
+            businessName:
+              type: string
+            address:
+              type: string
+            hobby_offers:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/components/schemas/Hobby'
