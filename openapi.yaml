@@ -71,7 +71,7 @@ paths:
     post:
       tags: [Authentication]
       summary: Resolve user role after authentication
-      description: Returns the role string (`USER` or `BUSINESS_USER`) for the authenticated username.
+      description: Returns a JSON object with the `role` field set to `USER` or `BUSINESS_USER` for the authenticated username.
       parameters:
         - name: username
           in: query
@@ -80,12 +80,17 @@ paths:
             type: string
       responses:
         '200':
-          description: Role string
+          description: Role object
           content:
             application/json:
               schema:
-                type: string
-                enum: [USER, BUSINESS_USER]
+                type: object
+                properties:
+                  role:
+                    type: string
+                    enum: [USER, BUSINESS_USER, UNKNOWN]
+              example:
+                role: USER
 
   # ── Users ─────────────────────────────────────────────────────────────────
 
@@ -531,7 +536,7 @@ components:
     JwtResponse:
       type: object
       properties:
-        jwtToken:
+        accessToken:
           type: string
           description: Bearer token to include in subsequent requests
 
@@ -539,11 +544,11 @@ components:
 
     AppClientSignUpDto:
       type: object
-      required: [username, fullName, gender, email, password]
+      required: [username, displayName, gender, email, password]
       properties:
         username:
           type: string
-        fullName:
+        displayName:
           type: string
         gender:
           $ref: '#/components/schemas/GenderEnum'
@@ -611,7 +616,7 @@ components:
           type: string
         category:
           $ref: '#/components/schemas/CategoryNameEnum'
-        creator:
+        businessOwner:
           type: string
           description: Username of the business owner creating the hobby
         price:
@@ -771,7 +776,7 @@ components:
               type: string
             address:
               type: string
-            hobby_offers:
+            offerings:
               type: array
               uniqueItems: true
               items:

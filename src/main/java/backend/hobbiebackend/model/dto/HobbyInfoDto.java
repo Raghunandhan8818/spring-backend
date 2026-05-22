@@ -13,7 +13,7 @@ public class HobbyInfoDto {
     private String intro;
     private String description;
     private CategoryNameEnum category;
-    private String creator;
+    private String businessOwner;
     private BigDecimal price;
     private LocationEnum location;
     private String contactInfo;
@@ -69,12 +69,12 @@ public class HobbyInfoDto {
         this.category = category;
     }
 
-    public String getCreator() {
-        return creator;
+    public String getBusinessOwner() {
+        return businessOwner;
     }
 
-    public void setCreator(String creator) {
-        this.creator = creator;
+    public void setBusinessOwner(String businessOwner) {
+        this.businessOwner = businessOwner;
     }
 
     public BigDecimal getPrice() {

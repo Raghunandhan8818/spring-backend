@@ -49,7 +49,7 @@ public class HobbyController {
         Location location = this.locationService.getLocationByName(info.getLocation());
         offer.setLocation(location);
         offer.setCategory(category);
-        BusinessOwner business = this.userService.findBusinessByUsername(info.getCreator());
+        BusinessOwner business = this.userService.findBusinessByUsername(info.getBusinessOwner());
         Set<Hobby> hobby_offers = business.getHobby_offers();
         hobby_offers.add(offer);
         business.setHobby_offers(hobby_offers);
