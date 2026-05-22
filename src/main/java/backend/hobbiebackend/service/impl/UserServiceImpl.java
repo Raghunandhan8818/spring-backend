@@ -91,6 +91,7 @@ public class UserServiceImpl implements UserService {
     public AppClient register(AppClientSignUpDto user) {
         UserRoleEntity userRole = this.userRoleService.getUserRoleByEnumName(UserRoleEnum.USER);
         AppClient appClient = this.modelMapper.map(user, AppClient.class);
+        appClient.setFullName(user.getDisplayName());
         appClient.setRoles(List.of(userRole));
         appClient.setPassword(this.passwordEncoder.encode(user.getPassword()));
         return appClientRepository.save(appClient);

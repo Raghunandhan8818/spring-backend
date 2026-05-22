@@ -1,5 +1,6 @@
 package backend.hobbiebackend.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -42,6 +43,7 @@ public class BusinessOwner extends UserEntity {
     }
 
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JsonProperty("offerings")
     public Set<Hobby> getHobby_offers() {
         return hobby_offers;
     }

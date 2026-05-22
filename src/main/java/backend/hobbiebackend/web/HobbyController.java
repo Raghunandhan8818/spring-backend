@@ -45,11 +45,12 @@ public class HobbyController {
     @Operation(summary = "Create new hobby", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<HttpStatus> saveHobby(@RequestBody HobbyInfoDto info) {
         Hobby offer = this.modelMapper.map(info, Hobby.class);
+        offer.setPrice(info.getPrice().multiply(java.math.BigDecimal.valueOf(100)));
         Category category = this.categoryService.findByName(info.getCategory());
         Location location = this.locationService.getLocationByName(info.getLocation());
         offer.setLocation(location);
         offer.setCategory(category);
-        BusinessOwner business = this.userService.findBusinessByUsername(info.getCreator());
+        BusinessOwner business = this.userService.findBusinessByUsername(info.getBusinessOwner());
         Set<Hobby> hobby_offers = business.getHobby_offers();
         hobby_offers.add(offer);
         business.setHobby_offers(hobby_offers);

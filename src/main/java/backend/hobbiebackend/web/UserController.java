@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -165,16 +166,16 @@ public class UserController {
     @PostMapping("/login")
     @CrossOrigin(origins = "http://localhost:4200")
     @Operation(summary = "Login based on user role after authentication", security = @SecurityRequirement(name = "bearerAuth"))
-    public String logInUser(@RequestParam String username) {
+    public ResponseEntity<Map<String, String>> logInUser(@RequestParam String username) {
         UserEntity userByUsername = this.userService.findUserByUsername(username);
         if (userByUsername.getRoles().stream()
                 .anyMatch(u -> u.getRole().equals(UserRoleEnum.USER))) {
-            return "USER";
+            return ResponseEntity.ok(Map.of("role", "USER"));
         } else if (userByUsername.getRoles().stream()
                 .anyMatch(u -> u.getRole().equals(UserRoleEnum.BUSINESS_USER))) {
-            return "BUSINESS_USER";
+            return ResponseEntity.ok(Map.of("role", "BUSINESS_USER"));
         }
-        return null;
+        return ResponseEntity.ok(Map.of("role", "UNKNOWN"));
     }
 }
 

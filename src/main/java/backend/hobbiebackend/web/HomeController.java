@@ -30,8 +30,8 @@ public class HomeController {
     @Operation(summary = "Show client/business homepage", security = @SecurityRequirement(name = "bearerAuth"))
     public Set<Hobby> hobbiesShow(@RequestParam String username, @RequestParam String role) {
         if (role.equals("user")) {
-            return this.hobbyService.getAllHobbieMatchesForClient(username);
+            return this.hobbyService.getAllHobbiesForBusiness(username);
         }
-        return this.hobbyService.getAllHobbiesForBusiness(username);
+        return this.hobbyService.getAllHobbieMatchesForClient(username);
     }
 }
