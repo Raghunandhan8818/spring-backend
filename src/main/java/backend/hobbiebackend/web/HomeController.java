@@ -29,7 +29,7 @@ public class HomeController {
     @GetMapping("/home")
     @Operation(summary = "Show client/business homepage", security = @SecurityRequirement(name = "bearerAuth"))
     public Set<Hobby> hobbiesShow(@RequestParam String username, @RequestParam String role) {
-        if (role.equals("user")) {
+        if (role.equals("business")) {
             return this.hobbyService.getAllHobbieMatchesForClient(username);
         }
         return this.hobbyService.getAllHobbiesForBusiness(username);

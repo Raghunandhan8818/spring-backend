@@ -174,7 +174,7 @@ public class UserController {
                 .anyMatch(u -> u.getRole().equals(UserRoleEnum.BUSINESS_USER))) {
             return "BUSINESS_USER";
         }
-        return null;
+        return "UNKNOWN";
     }
 }
 
