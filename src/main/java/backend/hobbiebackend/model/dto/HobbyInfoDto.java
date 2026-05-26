@@ -82,7 +82,7 @@ public class HobbyInfoDto {
     }
 
     public void setPrice(BigDecimal price) {
-        this.price = price;
+        this.price = price != null ? price.divide(java.math.BigDecimal.valueOf(100)) : null;
     }
 
     public LocationEnum getLocation() {

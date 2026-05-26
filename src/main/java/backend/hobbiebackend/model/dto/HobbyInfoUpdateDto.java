@@ -58,7 +58,7 @@ public class HobbyInfoUpdateDto {
     }
 
     public BigDecimal getPrice() {
-        return price;
+        return price == null ? null : price.divide(java.math.BigDecimal.valueOf(100));
     }
 
     public void setPrice(BigDecimal price) {
