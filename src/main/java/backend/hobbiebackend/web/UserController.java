@@ -168,13 +168,13 @@ public class UserController {
     public String logInUser(@RequestParam String username) {
         UserEntity userByUsername = this.userService.findUserByUsername(username);
         if (userByUsername.getRoles().stream()
-                .anyMatch(u -> u.getRole().equals(UserRoleEnum.USER))) {
-            return "USER";
-        } else if (userByUsername.getRoles().stream()
                 .anyMatch(u -> u.getRole().equals(UserRoleEnum.BUSINESS_USER))) {
             return "BUSINESS_USER";
+        } else if (userByUsername.getRoles().stream()
+                .anyMatch(u -> u.getRole().equals(UserRoleEnum.USER))) {
+            return "USER";
         }
-        return null;
+        return "UNKNOWN";
     }
 }
 
