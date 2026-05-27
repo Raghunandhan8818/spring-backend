@@ -159,7 +159,9 @@ public class HobbyServiceImpl implements HobbyService {
 
     @Override
     public List<Hobby> findSavedHobbies(AppClient currentAppClient) {
-        return currentAppClient.getSaved_hobbies();
+        List<Hobby> saved = new ArrayList<>(currentAppClient.getSaved_hobbies());
+        Collections.reverse(saved);
+        return saved;
     }
 
     @Override

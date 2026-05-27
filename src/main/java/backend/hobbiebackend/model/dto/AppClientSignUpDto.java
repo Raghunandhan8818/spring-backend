@@ -4,7 +4,7 @@ import backend.hobbiebackend.model.entities.enums.GenderEnum;
 
 public class AppClientSignUpDto {
     private String username;
-    private String fullName;
+    private String displayName;
     private GenderEnum gender;
     private String email;
     private String password;
@@ -20,12 +20,12 @@ public class AppClientSignUpDto {
         this.username = username;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public GenderEnum getGender() {
