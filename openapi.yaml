@@ -508,7 +508,7 @@ components:
 
     GenderEnum:
       type: string
-      enum: [MALE, FEMALE, OTHER]
+      enum: [MALE, FEMALE]
 
     UserRoleEnum:
       type: string
@@ -516,11 +516,11 @@ components:
 
     CategoryNameEnum:
       type: string
-      enum: [ACTIVE, FUN, CREATIVE, RELAX, INTELLECTUAL, SOCIAL, OTHER]
+      enum: [ACTIVE, ENTERTAINMENT, CREATIVE, RELAX, INTELLECTUAL, SOCIAL, OTHER]
 
     LocationEnum:
       type: string
-      enum: [ZURICH, BERN, LUZERN, ZUG]
+      enum: [ZURICH, BERN, LUZERN, ZUG, GENEVA, BASEL]
 
     # ── Auth ─────────────────────────────────────────────────────────────────
 
@@ -536,7 +536,7 @@ components:
     JwtResponse:
       type: object
       properties:
-        accessToken:
+        jwtToken:
           type: string
           description: Bearer token to include in subsequent requests
 
@@ -550,6 +550,7 @@ components:
           type: string
         displayName:
           type: string
+          description: "Renamed from 'fullName' — consumers sending 'fullName' will be ignored"
         gender:
           $ref: '#/components/schemas/GenderEnum'
         email:
@@ -576,13 +577,14 @@ components:
 
     UpdateAppClientDto:
       type: object
-      required: [id, fullName, gender, password]
+      required: [id, displayName, gender, password]
       properties:
         id:
           type: integer
           format: int64
-        fullName:
+        displayName:
           type: string
+          description: "Renamed from 'fullName'"
         gender:
           $ref: '#/components/schemas/GenderEnum'
         password:
@@ -604,7 +606,7 @@ components:
 
     HobbyInfoDto:
       type: object
-      required: [name, price, category, location, creator]
+      required: [name, priceInPaise, category, location, creator]
       properties:
         name:
           type: string
@@ -619,13 +621,11 @@ components:
         businessOwner:
           type: string
           description: Username of the business owner creating the hobby
-        price:
-          type: number
-          format: double
+        priceInPaise:
+          type: integer
+          description: "Price in paise (1/100th of a rupee). Renamed and retyped from 'price' (was double in rupees)."
         location:
           $ref: '#/components/schemas/LocationEnum'
-        contactInfo:
-          type: string
         profileImgUrl:
           type: string
           format: uri
@@ -720,13 +720,11 @@ components:
           $ref: '#/components/schemas/Category'
         creator:
           type: string
-        price:
-          type: number
-          format: double
+        priceInPaise:
+          type: integer
+          description: "Price in paise. Breaking change: was 'price' (double, in rupees)."
         location:
           $ref: '#/components/schemas/Location'
-        contactInfo:
-          type: string
         profileImgUrl:
           type: string
           format: uri
@@ -753,8 +751,9 @@ components:
         - $ref: '#/components/schemas/UserEntity'
         - type: object
           properties:
-            fullName:
+            displayName:
               type: string
+              description: "Renamed from 'fullName'"
             gender:
               $ref: '#/components/schemas/GenderEnum'
             hobby_matches:

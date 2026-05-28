@@ -1,8 +1,6 @@
 package backend.hobbiebackend.model.entities;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
-
 @Entity
 @Table(name = "hobbies")
 public class Hobby extends BaseEntity {
@@ -12,7 +10,7 @@ public class Hobby extends BaseEntity {
     private String description;
     private Category category;
     private String creator;
-    private BigDecimal price;
+    private Integer priceInPaise;
     private Location location;
     private String profileImgUrl;
     private String galleryImgUrl1;
@@ -22,7 +20,6 @@ public class Hobby extends BaseEntity {
     private String galleryImg1_id;
     private String galleryImg2_id;
     private String galleryImg3_id;
-    private String contactInfo;
 
     public Hobby() {
     }
@@ -99,13 +96,13 @@ public class Hobby extends BaseEntity {
         this.category = category;
     }
 
-    @Column(nullable = false)
-    public BigDecimal getPrice() {
-        return price;
+    @Column(name = "price_in_paise", nullable = false)
+    public Integer getPriceInPaise() {
+        return priceInPaise;
     }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setPriceInPaise(Integer priceInPaise) {
+        this.priceInPaise = priceInPaise;
     }
 
     @Column
@@ -171,13 +168,4 @@ public class Hobby extends BaseEntity {
         this.galleryImgUrl3 = galleryImgUrl3;
     }
 
-    @Column(name = "contact_info", columnDefinition = "TEXT")
-
-    public String getContactInfo() {
-        return contactInfo;
-    }
-
-    public void setContactInfo(String contactInfo) {
-        this.contactInfo = contactInfo;
-    }
 }
