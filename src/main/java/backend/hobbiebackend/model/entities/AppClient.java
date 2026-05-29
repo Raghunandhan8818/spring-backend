@@ -14,7 +14,7 @@ import java.util.Set;
 @Entity
 @Table(name = "app_clients")
 public class AppClient extends UserEntity implements Serializable {
-    private String fullName;
+    private String displayName;
     private GenderEnum gender;
     private Test testResults;
     private Set<Hobby> hobby_matches;
@@ -23,19 +23,19 @@ public class AppClient extends UserEntity implements Serializable {
     public AppClient() {
     }
 
-    public AppClient(String username, String email, List<UserRoleEntity> roles, String password, String fullName, GenderEnum gender) {
+    public AppClient(String username, String email, List<UserRoleEntity> roles, String password, String displayName, GenderEnum gender) {
         super(username, email, roles, password);
-        this.fullName = fullName;
+        this.displayName = displayName;
         this.gender = gender;
     }
 
-    @Column(name = "full_name", nullable = false)
-    public String getFullName() {
-        return fullName;
+    @Column(name = "display_name", nullable = false)
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     @Column(nullable = false)
